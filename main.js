@@ -1,17 +1,16 @@
-// Import and constants variable
+// Import and select elements from the HTML document
 import {products as CurrentProducts} from './products.js'
 const productSection = document.querySelector('.products')
 const categoryContainers = document.querySelector('.categories-container')
 const searchInput = document.querySelector('.search-input')
-const notfound = document.querySelector('.not-found')
 const basketAmount = document.querySelector('.basket-text')
-const clearBasket = document.querySelector('.clear-basket')
+const clearBasketBtn = document.querySelector('.clear-basket')
 const basketBar = document.querySelector('.basket-bar > .basket-text')
 const popUpMenu = document.querySelector('.pop-up')
-let basketsBtn = []
+const basketsBtn = []
 let productInBasket = []
 
-// Create a category menu
+// Render a menu categories
 function renderCategories(arr) {
   categoryContainers.innerText = ''
   const category = ['Wszystkie']
@@ -25,8 +24,29 @@ function renderCategories(arr) {
     categoryContainers.appendChild(createElement)
   })
 }
+renderCategories(CurrentProducts)
 
-// Rendering a list of products
+// Mark a currently category
+const categoryBtn = document.querySelectorAll('.category-item')
+categoryBtn.forEach((element) => {
+  element.addEventListener('click', () => {
+    searchInput.value = ''
+    notfound.classList.remove('active')
+    categoryBtn.forEach((element) => element.classList.remove('active'))
+    element.classList.add('active')
+    const categoryOfProduct = CurrentProducts.filter((item) => item.category === element.innerText)
+    element.innerText === 'Wszystkie' ? renderProducts(CurrentProducts) : renderProducts(categoryOfProduct)
+  })
+})
+
+// Create a searchBar
+searchInput.addEventListener('input', (event) => {
+  let searchArray = CurrentProducts.filter((element) => element.name.toLowerCase().includes(event.target.value.toLowerCase()))
+  searchArray.length === 0 ? notfound.classList.add('active') : notfound.classList.remove('active')
+  renderProducts(searchArray)
+})
+
+// Render a list of products
 function renderProducts(products) {
   productSection.innerHTML = ''
 
@@ -45,11 +65,13 @@ function renderProducts(products) {
     </div>`
     productSection.appendChild(createElement)
   })
-  basketsBtn = document.querySelectorAll('.add-to-basket-btn')
-  // adding a item to basket
-  productSection.addEventListener('click', function (event) {
+}
+
+// adding a item to basket
+function addToBasket() {
+  productSection.addEventListener('click', (event) => {
     if (event.target.classList.contains('add-to-basket-btn')) {
-      clearBasket.classList.add('active')
+      clearBasketBtn.classList.add('active')
       const productId = event.target.id
       const product = CurrentProducts.find((item) => item.id == productId)
       productInBasket.push(product)
@@ -57,33 +79,28 @@ function renderProducts(products) {
     }
   })
 }
+addToBasket()
 
-// Execute core function when site load
-document.onload = renderProducts(CurrentProducts)
-document.onload = renderCategories(CurrentProducts)
-
-const categoryBtn = document.querySelectorAll('.category-item')
-
-// mark a current category
-categoryBtn.forEach((element) => {
-  element.addEventListener('click', () => {
-    searchInput.value = ''
-    notfound.classList.remove('active')
-    categoryBtn.forEach((element) => element.classList.remove('active'))
-    element.classList.add('active')
-    const categoryOfProduct = CurrentProducts.filter((item) => item.category === element.innerText)
-    element.innerText === 'Wszystkie' ? renderProducts(CurrentProducts) : renderProducts(categoryOfProduct)
+// remove items from basket
+function removeFromBasket() {
+  clearBasketBtn.addEventListener('click', () => {
+    sumOfBasket([])
+    popUpMenu.classList.remove('active')
+    clearBasket.classList.remove('active')
   })
-})
+  const basketRemove = document.querySelectorAll('.remove-from-basket')
+  basketRemove.forEach((button) =>
+    button.addEventListener('click', (event) => {
+      const indexToRemove = productInBasket.indexOf(productInBasket.find((element) => element.id == event.target.id))
+      productInBasket = productInBasket.filter((element, index) => {
+        return index !== indexToRemove
+      })
+      sumOfBasket(productInBasket)
+    })
+  )
+}
 
-// create a searchBar
-searchInput.addEventListener('input', (event) => {
-  let searchArray = CurrentProducts.filter((element) => element.name.toLowerCase().includes(event.target.value.toLowerCase()))
-  searchArray.length === 0 ? notfound.classList.add('active') : notfound.classList.remove('active')
-  renderProducts(searchArray)
-})
-
-// Manage a Basket
+// Create a basket list
 function sumOfBasket(arr) {
   popUpMenu.innerHTML = ''
   let sum = 0
@@ -97,19 +114,13 @@ function sumOfBasket(arr) {
     element.sale ? (sum += element.price - element.saleAmount) : (sum += element.price)
   })
   basketAmount.innerText = sum.toFixed(2) + ' zł'
-
-  const basketRemove = document.querySelectorAll('.remove-from-basket')
-
-  // remowing element from basket
-  basketRemove?.forEach((element) =>
-    element.addEventListener('click', (event) => {
-      productInBasket = productInBasket.filter((element) => event.target.id != element.id)
-      sumOfBasket(productInBasket)
-    })
-  )
+  removeFromBasket()
 }
 
 // Adding listeners for basket's buttons
 basketBar.addEventListener('click', () => {
-  popUpMenu.classList.toggle('active')
+  basketAmount.innerText === '0.00 zł' || basketAmount.innerText === 'Koszyk' ? null : popUpMenu.classList.toggle('active')
 })
+
+// Render resourcess when site load
+document.onload = renderProducts(CurrentProducts)

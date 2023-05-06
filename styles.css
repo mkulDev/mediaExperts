@@ -103,7 +103,7 @@ header {
   position: absolute;
   top: 100px;
   right: 0px;
-  width: 300px;
+  width: 400px;
   z-index: 2;
   display: none;
 }
@@ -130,10 +130,11 @@ header {
   color: var(--maincolor);
 }
 .remove-from-basket {
-  background-color: transparent;
+  background: transparent;
   color: white;
   cursor: pointer;
   margin-left: 10px;
+  border: none;
 }
 
 /* styling a categories bar */
@@ -347,6 +348,42 @@ header {
   }
 }
 
+@media only screen and (width < 1300px) {
+  header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 20px;
+    background-color: black;
+    width: 100%;
+  }
+  .header-title {
+    margin-bottom: 20px;
+  }
+
+  .search-bar {
+    margin-bottom: 15px;
+    width: 300px;
+    flex-grow: 0;
+  }
+
+  .search-input {
+    margin: 0px;
+    min-width: 250px;
+    width: 300px;
+  }
+
+  .basket-bar {
+    margin: 0px;
+  }
+  .pop-up {
+    top: 210px;
+    width: 400px;
+    z-index: 2;
+    display: none;
+  }
+}
+
 @media only screen and (width < 480px) {
   header {
     display: flex;
@@ -354,6 +391,7 @@ header {
     align-items: center;
     padding: 20px 20px;
     background-color: black;
+    width: 100%;
   }
   .header-title {
     margin-bottom: 20px;
@@ -371,5 +409,12 @@ header {
   }
   .basket-bar {
     margin: 0px;
+  }
+
+  .pop-up {
+    top: 210px;
+    width: 100%;
+    z-index: 2;
+    display: none;
   }
 }
